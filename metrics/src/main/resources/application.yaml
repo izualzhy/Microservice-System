@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: metrics
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: 'prometheus'
+  endpoint:
+    prometheus:
+      enabled: true
+    health:
+      show-details: always
+server:
+  port: 6001
