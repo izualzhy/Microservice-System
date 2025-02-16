@@ -1,20 +1,15 @@
-# ??????
 server:
   port: 3001
-# Spring?????????
 spring:
   application:
     name: gateway
 
+#logging:
+#  level:
+#    org.springframework.cloud.gateway: DEBUG
+#    reactor.netty.http.client: DEBUG
+#    reactor.netty.http.server: DEBUG
 
-  cloud:
-    gateway:
-      # ??????
-      routes:
-        # ????
-        - id: fund
-          # ??URI
-          uri: http://localhost:7001
-          # ????
-          predicates:
-          - Path=/r4j/**
+dynamic-route:
+  url-mapping: "{'pathA': 'http://localhost:8101', 'pathB': 'http://localhost:8102', 'pathC': 'http://localhost:8103'}"
+#  url-mapping: "{pathA: 'http://localhost:8101', pathB: 'http://localhost:8102', pathC: 'http://localhost:8103'}"
