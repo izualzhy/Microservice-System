@@ -2,7 +2,7 @@ var websocket = null;
 // 判断当前浏览器是否支持WebSocket
 if ('WebSocket' in window) {
     // 创建WebSocket对象，连接服务器端点
-    websocket = new WebSocket("ws://localhost:8080/ws");
+    websocket = new WebSocket("ws://localhost:8201/ws");
 } else {
     alert('Not support websocket')
 }
