@@ -1,14 +1,19 @@
 package cn.izualzhy.ws.service.impl;
 
 import jakarta.websocket.*;
+import jakarta.websocket.server.HandshakeRequest;
 import jakarta.websocket.server.ServerEndpoint;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 /**** imports ****/
-@ServerEndpoint("/ws")
+//@ServerEndpoint("/ws")
 @Service
 public class WebSocketServiceImpl {
     // 静态变量，用来记录当前在线连接数。应该把它设计成线程安全的
@@ -21,15 +26,30 @@ public class WebSocketServiceImpl {
     /**
      * 连接建立成功调用的方法*/
     @OnOpen
-    public void onOpen(Session session) {
+    public void onOpen(Session session, EndpointConfig config) {
         this.session = session;
+        readHeaders(session, config);
         webSocketSet.add(this);     // 加入set中
         addOnlineCount();            // 在线数加1
         System.out.println("有新连接加入！当前在线人数为" + getOnlineCount());
         try {
             sendMessage("有新的连接加入了！！");
+//            sendMessage("A");
         } catch (IOException e) {
             System.out.println("IO异常");
+        }
+    }
+
+    private void readHeaders(Session session, EndpointConfig config) {
+        // 读取 headers
+        HandshakeRequest request = (HandshakeRequest) config.getUserProperties().get(HandshakeRequest.class.getName());
+        System.out.println("request: " + request);
+        if (request != null) {
+            Map<String, List<String>> headers = request.getHeaders();
+            List<String> authHeaders = headers.get("Authorization");
+            if (authHeaders != null && !authHeaders.isEmpty()) {
+                System.out.println("Authorization Header: " + authHeaders.get(0));
+            }
         }
     }
 
@@ -61,6 +81,7 @@ public class WebSocketServiceImpl {
                 System.out.println(userName);
                 */
                 item.sendMessage(message);
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
