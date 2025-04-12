@@ -12,4 +12,23 @@ public class TestController {
     public String get(@PathVariable("name") String name) {
         return "Test , " + name;
     }
+
+    @GetMapping(value = "/slowApi")
+    public String slowApi() {
+        try {
+            Thread.sleep(30000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return "Slow API";
+    }
+    @GetMapping(value = "/pathD/helloFor5M")
+    public String slowHello() {
+        try {
+            Thread.sleep(300000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return "Slow Hello";
+    }
 }
