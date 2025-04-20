@@ -7,8 +7,8 @@ spring:
       prefix: /WEB-INF/jsp/
       suffix: .jsp
 
-logging:
-  level:
-    org.springframework.web: DEBUG
+#logging:
+#  level:
+#    org.springframework.web: DEBUG
 server:
   port: 8201
