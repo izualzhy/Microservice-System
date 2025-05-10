@@ -1,6 +1,7 @@
 package cn.izualzhy.webflux.handler;
 
 import cn.izualzhy.webflux.pojo.User;
+import cn.izualzhy.webflux.repository.FakeUserRepository;
 import cn.izualzhy.webflux.repository.UserRepository;
 import cn.izualzhy.webflux.vo.UserVo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,11 +12,15 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import static org.springframework.http.MediaType.APPLICATION_STREAM_JSON;
+
 @Service
 public class UserHandler {
 
     @Autowired
     private UserRepository userRepository = null;
+    @Autowired
+    private FakeUserRepository fakeUserRepository = null;
 
     public Mono<ServerResponse> getUser(ServerRequest request) {
         // 获取请求URI参数
@@ -34,21 +39,39 @@ public class UserHandler {
     }
 
     public Mono<ServerResponse> insertUser(ServerRequest request) {
-        Mono<User> userMonoParam = request.bodyToMono(User.class);
-        Mono<UserVo> userVoMono = userMonoParam
-                // 缓存请求体
-                .cache()
-                // 处理业务逻辑，转变数据流
-                .flatMap(user  ->userRepository.save(user)
-                        // 转换为UserVo对象
-                        .map(u->translate(u)));
-        return ServerResponse
-                // 响应成功
+        // Mono<User> userMonoParam = request.bodyToMono(User.class);
+        // Mono<UserVo> userVoMono = userMonoParam
+        //         // 缓存请求体
+        //         .cache()
+        //         // 处理业务逻辑，转变数据流
+        //         .flatMap(user  ->userRepository.save(user)
+        //                 // 转换为UserVo对象
+        //                 .map(u->translate(u)));
+        // return ServerResponse
+        //         // 响应成功
+        //         .ok()
+        //         // 响应体类型
+        //         .contentType(MediaType.APPLICATION_JSON_UTF8)
+        //         // 响应体
+        //         .body(userVoMono, UserVo.class);
+        Flux<User> userFlux = request.bodyToFlux(User.class);
+
+        System.out.println("userFlux:" + userFlux);
+        Flux<UserVo> savedUsers = userFlux
+                .concatMap(user -> fakeUserRepository.save(user))
+                // .flatMap(user -> fakeUserRepository.save(user))
+                // .flatMap(user -> userRepository.save(user))
+                .map(u -> translate(u));
+
+        System.out.println("savedUsers:" + savedUsers);
+
+        Mono<ServerResponse> response = ServerResponse
                 .ok()
-                // 响应体类型
-                .contentType(MediaType.APPLICATION_JSON_UTF8)
-                // 响应体
-                .body(userVoMono, UserVo.class);
+                .contentType(APPLICATION_STREAM_JSON)  // 注意这里保持流式返回
+                .body(savedUsers, UserVo.class);
+
+        System.out.println("response:" + response);
+        return response;
     }
 
     public Mono<ServerResponse> updateUser(ServerRequest request) {

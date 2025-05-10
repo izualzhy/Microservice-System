@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: webflux
+  data:
+    mongodb:
+      uri: ${ATLAS_MONGODB_URI}
+
+server:
+  port: 6081
