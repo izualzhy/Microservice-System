@@ -1,0 +1,28 @@
+spring:
+  application:
+    name: mybatis
+  datasource:
+    url: jdbc:mysql://${MYSQL_ADDR_PORT:localhost:3306}/test?useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&allowMultiQueries=true&useSSL=false&allowPublicKeyRetrieval=true
+    username: root
+    password: Bigdata@123
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      minimum-idle: 10
+      maximum-pool-size: 20
+      idle-timeout: 500000
+      max-lifetime: 540000
+      connection-timeout: 60000
+      connection-test-query: SELECT 1
+mybatis:
+  mapper-locations: classpath:mappers/*.xml  # MyBatis??????
+  type-aliases-package: cn.izualzhy.pojo  # MyBatis?????????@Alias??
+  type-handlers-package: cn.izualzhy.typehandler  # ??typeHandler????
+  config-location: classpath:mybatis/mybatis-config.xml # ??MyBatis????
+
+logging:
+  level:
+    root: INFO
+#    org.springframework: DEBUG
+    org.mybatis: DEBUG
+server:
+  port: 9081
