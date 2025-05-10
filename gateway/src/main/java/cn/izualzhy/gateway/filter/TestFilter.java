@@ -1,6 +1,7 @@
-package cn.izualzhy.gateway.fitler;
+package cn.izualzhy.gateway.filter;
 
 import jakarta.annotation.PostConstruct;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
@@ -19,24 +20,40 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
+@Log4j2
 @Component
-public class DynamicRouteFilter implements GatewayFilter, Ordered {
+public class TestFilter implements GatewayFilter, Ordered {
     private final Map<String, String> urlMapping;
 
     @Autowired
-    public DynamicRouteFilter(@Value("#{${dynamic-route.url-mapping}}") Map<String, String> urlMapping) {
+    public TestFilter(@Value("#{${dynamic-route.url-mapping}}") Map<String, String> urlMapping) {
         this.urlMapping = urlMapping;
     }
     @PostConstruct
     public void init() {
-        System.out.println("urlMappings: " + urlMapping);
+        log.info("urlMappings: " + urlMapping);
     }
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-        System.out.println("DynamicRouteFilter.filter() urlMapping : " + urlMapping);
+        log.info("INFO DynamicRouteFilter.filter() urlMapping : {}", urlMapping);
+        log.debug("DEBUG DynamicRouteFilter.filter() urlMapping : {}", urlMapping);
         ServerHttpRequest request = exchange.getRequest();
         String path = request.getURI().getPath();
+        log.info("DynamicRouteFilter.filter() query : {} rawQuery : {}", request.getURI().getQuery(), request.getURI().getRawQuery());
+        String query = request.getURI().getRawQuery();
+
+        String clientIp = request.getRemoteAddress() != null ? request.getRemoteAddress().getAddress().getHostAddress() : "unknown";
+        int clientPort = request.getRemoteAddress() != null ? request.getRemoteAddress().getPort() : -1;
+
+        log.info("Client IP: {}, Port: {}", clientIp, clientPort);
+
+        String forwardedFor = request.getHeaders().getFirst("X-Forwarded-For");
+        if (forwardedFor != null) {
+            log.info("X-Forwarded-For: {}", forwardedFor);
+        } else {
+            log.info("X-Forwarded-For is null");
+        }
 
         String[] segments = path.split("/");
         if (segments.length < 3) {
@@ -44,18 +61,10 @@ public class DynamicRouteFilter implements GatewayFilter, Ordered {
         }
         String cluster = segments[2];
 
-        // 如果找不到匹配的 cluster，则返回 404，并写入提示语
-        if (!urlMapping.containsKey(cluster)) {
-            exchange.getResponse().setStatusCode(HttpStatus.NOT_FOUND);
-            String message = "没有匹配的路由规则: " + cluster;
-            DataBuffer buffer = exchange.getResponse().bufferFactory().wrap(message.getBytes(StandardCharsets.UTF_8));
-            return exchange.getResponse().writeWith(Mono.just(buffer));
-        }
-
         String targetUri = urlMapping.get(cluster);
-        URI newUri = URI.create(targetUri + path);
+        URI newUri = URI.create(targetUri + path + (query != null ? "?" + query : ""));
 
-        System.out.println("xxx: " + cluster + ", targetUri: " + targetUri + ", newUri: " + newUri);
+        log.info("forward to newUri: {}", cluster, targetUri, newUri);
 
         ServerHttpRequest newRequest = request.mutate().uri(newUri).build();
         ServerWebExchange mutatedExchange = exchange.mutate().request(newRequest).build();

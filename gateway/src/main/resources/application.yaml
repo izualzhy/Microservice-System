@@ -11,5 +11,14 @@ spring:
 #    reactor.netty.http.server: DEBUG
 
 dynamic-route:
-  url-mapping: "{'pathA': 'http://localhost:8101', 'pathB': 'http://localhost:8102', 'pathC': 'http://localhost:8103'}"
+  url-mapping: "{'pathA': 'http://localhost:8101', 'pathB': 'http://localhost:8102', 'pathC': 'http://localhost:8103', 'pathD': 'http://localhost:6001'}"
 #  url-mapping: "{pathA: 'http://localhost:8101', pathB: 'http://localhost:8102', pathC: 'http://localhost:8103'}"
+
+gateway:
+  timeout-ms: 60000
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "loggers" # gateway , 或者配置“*”暴露全部端点
