@@ -1,16 +1,28 @@
 package cn.izualzhy.gateway;
 
+import lombok.extern.log4j.Log4j2;
+import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.context.annotation.Bean;
+import org.springframework.web.reactive.DispatcherHandler;
 
+@Log4j2
 @SpringBootApplication
 public class GatewayApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(GatewayApplication.class, args);
+    }
+
+    @Bean
+    ApplicationRunner runner(DispatcherHandler handler) {
+        return args -> handler.getHandlerMappings()
+                .forEach(hm -> {
+                    log.info("handlerMapping: {}", hm);
+                });
     }
 
 

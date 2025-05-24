@@ -1,5 +1,10 @@
 server:
   port: 6001
+  tomcat:
+    connection-timeout: 30s
+    keep-alive-timeout: 30s  # 连接空闲超过 30 秒就关闭
+    max-keep-alive-requests: 100  # 一个连接最大允许处理多少个请求
+
 spring:
   application:
     name: demo

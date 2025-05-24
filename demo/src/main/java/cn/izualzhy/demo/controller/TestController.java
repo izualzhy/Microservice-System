@@ -1,9 +1,9 @@
 package cn.izualzhy.demo.controller;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import lombok.AllArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
 
 @RestController
 @RequestMapping("/test")
@@ -31,4 +31,14 @@ public class TestController {
         }
         return "Slow Hello";
     }
+
+    // @PostMapping("/large")
+    // public ResponseEntity<String> large() {
+    //     StringBuilder sb = new StringBuilder();
+    //     for (int i = 0; i < 100000; i++) {
+    //         sb.append("data").append(i).append(",");
+    //     }
+    //     return ResponseEntity.ok(sb.toString());
+    // }
+
 }
