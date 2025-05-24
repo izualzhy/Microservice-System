@@ -18,6 +18,20 @@ public class StreamTestController {
 
     @GetMapping(value = "/test/concat", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<String> testConcatMap() {
+        Flux<Mono<String>> handlerMonos = Flux.just(
+                Mono.empty(),
+                Mono.empty(),
+                Mono.just("matchHandler-1"),
+                Mono.just("matchHandler-2")
+        );
+
+        Flux<String> handlerFlux = handlerMonos.concatMap(m -> m);
+        handlerFlux.subscribe(result -> System.out.println("concatMap: " + result));
+
+        handlerFlux.next()
+                .defaultIfEmpty("Error")
+                .subscribe(result -> System.out.println("next: " + result));
+
         return Flux.just("A", "B", "C", "D")
                 .map(this::simulateChunk)
                 .concatMap(f -> f);

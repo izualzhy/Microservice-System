@@ -1,5 +1,6 @@
 package cn.izualzhy.webflux.config;
 
+import lombok.extern.log4j.Log4j2;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
@@ -10,6 +11,7 @@ import org.springframework.web.server.WebHandler;
 import reactor.core.publisher.Mono;
 import org.springframework.core.io.buffer.DataBufferFactory;
 
+@Log4j2
 @Configuration
 public class CustomWebFluxConfig {
 
