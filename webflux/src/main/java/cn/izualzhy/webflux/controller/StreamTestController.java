@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.time.Duration;
@@ -57,22 +58,22 @@ public class StreamTestController {
         MDC.put("trace_id", "multiThread");
 
         Flux.range(1, 5)
-            .doOnNext(i -> System.out.println("[before publishOn] " + i + " on thread: " + Thread.currentThread().getName() + ", trace_id=" + MDC.get("trace_id")))
-            .publishOn(Schedulers.boundedElastic()) // 切换线程池
-            .doOnNext(i -> System.out.println("[after publishOn] " + i + " on thread: " + Thread.currentThread().getName() + ", trace_id=" + MDC.get("trace_id")))
-            .subscribe();
+                .doOnNext(i -> System.out.println("[before publishOn] " + i + " on thread: " + Thread.currentThread().getName() + ", trace_id=" + MDC.get("trace_id")))
+                .publishOn(Schedulers.boundedElastic()) // 切换线程池
+                .doOnNext(i -> System.out.println("[after publishOn] " + i + " on thread: " + Thread.currentThread().getName() + ", trace_id=" + MDC.get("trace_id")))
+                .subscribe();
 
 
         System.out.println("WebClient create Thread: " + Thread.currentThread().getName());
         WebClient.create()
-        .get()
-        .uri("http://127.0.0.1:6081/test/MDC/singleThread")
-        .retrieve()
-        .bodyToMono(String.class)
-        .doOnNext(body -> {
-            System.out.println("doOnNext Thread: " + Thread.currentThread().getName());
-        })
-        .block(); // 只是为了让主线程等一下
+                .get()
+                .uri("http://127.0.0.1:6081/test/MDC/singleThread")
+                .retrieve()
+                .bodyToMono(String.class)
+                .doOnNext(body -> {
+                    System.out.println("doOnNext Thread: " + Thread.currentThread().getName());
+                })
+                .block(); // 只是为了让主线程等一下
 
         Thread.sleep(1000); // 等待异步任务执行完成
 
@@ -89,5 +90,32 @@ public class StreamTestController {
         Thread.sleep(1000); // 等待异步任务执行完成
 
         return "testMDC";
+    }
+
+    @GetMapping(value = "/test/flatmapvsconcatmap")
+    public void testFlatMapVsConcatMap() {
+        System.out.println("===== flatMap 示例 =====");
+        Flux.range(1, 5)
+                .flatMap(i -> Mono.fromCallable(() -> {
+                                    System.out.println("flatMap: " + i + " on thread " + Thread.currentThread().getName() +
+                                            " currentTime: " + LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss.SSS")));
+                                    Thread.sleep(500); // 模拟耗时任务
+                                    return i;
+                                })
+                                .subscribeOn(Schedulers.parallel())
+                )
+                .blockLast();
+
+        System.out.println("\n===== concatMap 示例 =====");
+        Flux.range(1, 5)
+                .concatMap(i -> Mono.fromCallable(() -> {
+                                    System.out.println("concatMap: " + i + " on thread " + Thread.currentThread().getName() +
+                                            " currentTime: " + LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss.SSS")));
+                                    Thread.sleep(500); // 模拟耗时任务
+                                    return i;
+                                })
+                                .subscribeOn(Schedulers.parallel())
+                )
+                .blockLast();
     }
 }
