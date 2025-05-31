@@ -32,6 +32,20 @@ public class StreamTestController {
                 .defaultIfEmpty("Error")
                 .subscribe(result -> System.out.println("next: " + result));
 
+        Flux.just(1, 2, 3)
+                .concatMap(i -> {
+                    if (i == 3) return Mono.just("concatMap matched");
+                    else return Mono.empty();
+                })
+                .subscribe(System.out::println);
+
+        Flux.just(1, 2, 3)
+                .map(i -> {
+                    if (i == 3) return Mono.just("map matched");
+                    else return Mono.empty();
+                })
+                .subscribe(System.out::println);
+
         return Flux.just("A", "B", "C", "D")
                 .map(this::simulateChunk)
                 .concatMap(f -> f);
@@ -131,5 +145,50 @@ public class StreamTestController {
                                 .subscribeOn(Schedulers.parallel())
                 )
                 .blockLast();
+    }
+
+    @GetMapping(value = "/test/defer")
+    public String testDefer() {
+        System.out.println("testDefer: " + LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss.SSS")));
+        Mono<Void> chain = createFilterChain();
+
+        System.out.println("Before subscribe");
+        chain.subscribe();
+
+        chain = Mono.defer(() -> createFilterChain());
+
+        System.out.println("Before subscribe");
+        chain.subscribe();
+
+        return "success";
+    }
+
+    private static Mono<Void> createFilterChain() {
+        System.out.println("Building filter chain...");
+
+        return Mono.just("filter1")
+                .flatMap(name -> {
+                    System.out.println("Executing " + name);
+                    return Mono.empty();
+                });
+    }
+
+    @GetMapping(value = "/test/thread")
+    public String testThread() {
+        Flux.just(1, 2, 3)
+        .publishOn(Schedulers.parallel()) //指定在parallel线程池中执行
+        .map(i -> {
+            System.out.println("map1: " + Thread.currentThread().getName());
+            return i;
+        })
+        .publishOn(Schedulers.boundedElastic()) // 指定下游的执行线程
+        .map(i -> {
+            System.out.println("map2: " + Thread.currentThread().getName());
+            return i;
+        })
+        .subscribeOn(Schedulers.single())
+        .subscribe(i -> System.out.println("subscribe: " + Thread.currentThread().getName()));
+
+        return "success";
     }
 }
