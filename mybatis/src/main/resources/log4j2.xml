@@ -7,15 +7,15 @@
                              onMismatch="DENY"/>
             <PatternLayout pattern="%d [%t] %-5p %l --- %m%n"/>
     </Console>
-        <RollingFile name="log" fileName="./logs/gateway.log"
-                     append="true" filePattern="./logs/gateway.log.%d{yyyy-MM-dd}">
+        <RollingFile name="log" fileName="./logs/mybatis.log"
+                     append="true" filePattern="./logs/mybatis.log.%d{yyyy-MM-dd}">
             <PatternLayout pattern="%d [%t] %-5p %l --- %m%n"/>
             <Policies>
                 <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
             </Policies>
             <DefaultRolloverStrategy>
                 <Delete basePath="./logs/" maxDepth="1">
-                    <IfFileName glob="gateway.log.*"/>
+                    <IfFileName glob="mybatis.log.*"/>
                     <IfLastModified age="15d"/>
                 </Delete>
             </DefaultRolloverStrategy>
@@ -23,7 +23,7 @@
     </appenders>
     <loggers>
 <!--        <root level="trace">-->
-        <root level="debug">
+        <root level="info">
             <appender-ref ref="log"/>
             <appender-ref ref="console"/>
         </root>

@@ -1,31 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<configuration status="OFF">
+<configuration status="INFO">
     <appenders>
         <Console name="console" target="SYSTEM_OUT">
             <ThresholdFilter level="trace" onMatch="ACCEPT"
                              onMismatch="DENY"/>
             <PatternLayout pattern="%d [%t] %-5p %l --- %m%n"/>
-    </Console>
-        <RollingFile name="log" fileName="./logs/gateway.log"
-                     append="true" filePattern="./logs/gateway.log.%d{yyyy-MM-dd}">
+        </Console>
+        <RollingFile name="log" fileName="./logs/demo.log"
+                     append="true" filePattern="./logs/demo.log.%d{yyyy-MM-dd}">
             <PatternLayout pattern="%d [%t] %-5p %l --- %m%n"/>
             <Policies>
                 <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
             </Policies>
             <DefaultRolloverStrategy>
                 <Delete basePath="./logs/" maxDepth="1">
-                    <IfFileName glob="gateway.log.*"/>
+                    <IfFileName glob="demo.log.*"/>
                     <IfLastModified age="15d"/>
                 </Delete>
             </DefaultRolloverStrategy>
         </RollingFile>
     </appenders>
     <loggers>
-<!--        <root level="trace">-->
-        <root level="debug">
+        <!--        <root level="trace">-->
+        <root level="info">
             <appender-ref ref="log"/>
             <appender-ref ref="console"/>
+            <logger name="org.apache.coyote.http11" level="DEBUG" additivity="false">
+                <appender-ref ref="console"/>
+                <appender-ref ref="log"/>
+            </logger>
         </root>
     </loggers>
 </configuration>

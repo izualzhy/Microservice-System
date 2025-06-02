@@ -1,0 +1,21 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: kcdemo
+
+keycloak:
+  public-client: true
+  auth-server-url: http://localhost:8080
+  realm: security-keycloak
+  resource: spring-security-keycloak-client
+  securityConstraints:
+  - authRoles:
+    # 以下路径需要user角色才能访问
+    - user
+    securityCollections:
+    # name可以随便写
+    - name: user-role-mappings
+      patterns:
+      - /demo/user

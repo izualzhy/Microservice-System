@@ -10,11 +10,11 @@ import jakarta.servlet.http.HttpServletResponse;
 public class LoggingInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
-        String method = request.getMethod();
-        String requestURL = request.getRequestURL().toString();
-        String queryString = request.getQueryString();
-        System.out.println("Request: " + method + " " + requestURL +
-                           (queryString != null ? "?" + queryString : ""));
+//        String method = request.getMethod();
+//        String requestURL = request.getRequestURL().toString();
+//        String queryString = request.getQueryString();
+//        System.out.println("Request: " + method + " " + requestURL +
+//                           (queryString != null ? "?" + queryString : ""));
         return true;
     }
 }

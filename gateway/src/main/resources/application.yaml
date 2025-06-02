@@ -3,6 +3,23 @@ server:
 spring:
   application:
     name: gateway
+  cloud:
+    gateway:
+      routes:
+        - id: custom-metrics
+          uri: forward:/actuator/metrics
+          predicates:
+            - Path=/metrics
+        - id: route-example
+          uri: http://127.0.0.1:6001/user/routeExample
+          predicates:
+            - Path=/user/routeExample
+        - id: add-request-header-example
+          uri: http://127.0.0.1:6001/user/addRequestHeaderExample
+          predicates:
+            - Path=/user/addRequestHeaderExample
+          filters:
+            - AddRequestHeader=X-Request-red, blue
 
 #logging:
 #  level:
@@ -18,7 +35,12 @@ gateway:
   timeout-ms: 60000
 
 management:
+  endpoint:
+    gateway:
+      # 默认已开启
+      enabled: true
   endpoints:
     web:
+      # 默认只暴露了 health/info 端点
       exposure:
-        include: "loggers" # gateway , 或者配置“*”暴露全部端点
+        include: "*"

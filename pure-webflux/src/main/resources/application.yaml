@@ -1,0 +1,5 @@
+spring:
+  application:
+    name: pure-webflux
+server:
+  port: 6082

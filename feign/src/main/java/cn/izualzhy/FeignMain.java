@@ -11,15 +11,17 @@ import org.springframework.context.ApplicationContext;
 @EnableFeignClients(basePackages="cn.izualzhy")
 public class FeignMain {
    public static void main(String[] args) {
-      ApplicationContext ctx = SpringApplication.run(FeignMain.class, args);
-      String[] names = ctx.getBeanNamesForType(Decoder.class);
-      System.out.println("FeignMain , Decoder Bean Count : " + names.length);
-      for (String name : names) {
-         System.out.println("FeignMain , Decoder : " + name);
-
-         Object x = ctx.getBean(name);
-         System.out.println("FeignMain , Decoder bean : " + x);
-      }
+              SpringApplication.run(FeignMain.class, args);
+      //
+      // ApplicationContext ctx = SpringApplication.run(FeignMain.class, args);
+      // String[] names = ctx.getBeanNamesForType(Decoder.class);
+      // System.out.println("FeignMain , Decoder Bean Count : " + names.length);
+      // for (String name : names) {
+      //    System.out.println("FeignMain , Decoder : " + name);
+      //
+      //    Object x = ctx.getBean(name);
+      //    System.out.println("FeignMain , Decoder bean : " + x);
+      // }
 
    }
 }

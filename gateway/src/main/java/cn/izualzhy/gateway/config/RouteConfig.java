@@ -13,6 +13,7 @@ import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import reactor.core.publisher.Mono;
 
 @Configuration
 public class RouteConfig {
@@ -28,10 +29,7 @@ public class RouteConfig {
     @Bean
     public RouteLocator routes(RouteLocatorBuilder builder) {
         return builder.routes()
-                .route("lilei_route", r -> r.path("/test/lilei/**")
-                        .filters(f -> f)
-                        .uri("http://localhost:6001"))
-                .route("test_route", r -> r.path("/test/**")
+                .route("test_route", r -> r.order(2).path("/test/**")
                         .filters(f -> f.filter(testFilter)
                         )
                         .uri("http://default-service-2")) // 这里的 uri 只是占位，无用。实际由过滤器修改。
@@ -49,6 +47,10 @@ public class RouteConfig {
 //                        .and()
 //                        .not(r1 -> r1.header("Upgrade", "websocket")) // 过滤掉 WebSocket 请求
 //                        .uri("http://localhost:6001")) // 转发到 HTTP 服务器
+                .route("rewrite_response_upper", r -> r.order(1).path("/test/pathD/**")
+                        .filters(f -> f.modifyResponseBody(String.class, String.class,
+                                        (exchange, s) -> Mono.just(s.toUpperCase())))
+                        .uri("http://127.0.0.1:6001"))
                 .build();
     }
 

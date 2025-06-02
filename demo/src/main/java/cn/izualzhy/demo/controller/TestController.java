@@ -8,7 +8,7 @@ import reactor.core.publisher.Flux;
 @RestController
 @RequestMapping("/test")
 public class TestController {
-    @GetMapping("/{name}")
+    @RequestMapping("/{name}")
     public String get(@PathVariable("name") String name) {
         return "Test , " + name;
     }

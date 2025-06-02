@@ -14,6 +14,8 @@ import reactor.core.publisher.Mono;
 
 import java.net.URI;
 
+import static org.springframework.cloud.gateway.support.ServerWebExchangeUtils.GATEWAY_PREDICATE_ROUTE_ATTR;
+
 @Log4j2
 @Component
 public class RouteToDemoFilter implements GatewayFilter, Ordered {
@@ -24,7 +26,8 @@ public class RouteToDemoFilter implements GatewayFilter, Ordered {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-        log.info("RouteToDemoFilter.filter() exchange : {}", exchange);
+        log.info("RouteToDemoFilter.filter() exchange: {} GATEWAY_PREDICATE_ROUTE_ATTR: {}", exchange, exchange.getAttributes().get(GATEWAY_PREDICATE_ROUTE_ATTR));
+        log.info("GATEWAY_REQUEST_URL_ATTR: ", exchange.getAttributes().get(ServerWebExchangeUtils.GATEWAY_REQUEST_URL_ATTR));
         ServerHttpRequest request = exchange.getRequest();
         String path = request.getURI().getPath();
         String query = request.getURI().getRawQuery();
@@ -38,7 +41,7 @@ public class RouteToDemoFilter implements GatewayFilter, Ordered {
         ServerWebExchange mutatedExchange = exchange.mutate().request(newRequest).build();
         mutatedExchange.getAttributes().put(ServerWebExchangeUtils.GATEWAY_REQUEST_URL_ATTR, newUri);
 
-        return chain.filter(mutatedExchange);
+        return chain.filter(mutatedExchange).doFinally();
     }
 
     @Override
